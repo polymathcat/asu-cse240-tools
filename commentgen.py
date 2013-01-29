@@ -99,10 +99,12 @@ for line in text[3:]:
     user_name = line[dict_column_indices["Last Name"]] + ", " + line[dict_column_indices["First Name"]]
     feedback = ""
 
-    for part in parts:
+    for i, part in enumerate(parts):
         col = dict_column_indices[str(part).zfill(2)+"_days_late"]
         if not line[col].strip() in [str(0), ""]:
             feedback += "<b>Part " + str(part).zfill(2) + " submission worth only " + str(100 - int(line[col]) * 10) + "% of graded value due to submission time. </b>"
+            if i != len (parts)-1:
+                feedback+="<br>"
 
     feedback += "<ul>"
 
