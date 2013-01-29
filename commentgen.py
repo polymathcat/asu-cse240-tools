@@ -102,7 +102,7 @@ for line in text[3:]:
     for part in parts:
         col = dict_column_indices[str(part).zfill(2)+"_days_late"]
         if not line[col].strip() in [str(0), ""]:
-            feedback += "<b>Part " + str(part).zfill(2) + " submission worth only " + str(100 - int(line[col]) * 10) + "% graded value due to submission time. </b>"
+            feedback += "<b>Part " + str(part).zfill(2) + " submission worth only " + str(100 - int(line[col]) * 10) + "% of graded value due to submission time. </b>"
 
     feedback += "<ul>"
 
