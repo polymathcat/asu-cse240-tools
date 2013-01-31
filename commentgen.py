@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 
-"""commentgen.py: Automatically generates comments from the CSE240 grading spreadsheet."""
+"""commentgen.py: Automatically generates comments from the CSE240 grading spreadsheet.
+
+                         Requires CSE240 - 2013 Spring - HW<hw> - Sheet1.tsv to be in local folder, a text copy of the
+                         GoogleDocs grading spreadsheet. <hw> is set in settings and will automatically be padded to two
+                         digits with zeros.
+
+                         Prints comments to console.
+                         """
+
 
 __author__      = "Ruben Acuna"
 __copyright__   = "Copyright 2011-2013, Ruben Acuna"
