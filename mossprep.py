@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 
-"""mossprep.py: Automatically generates the command for running MOSS on every file in the folder."""
+"""mossprep.py: Automatically generates the command for running MOSS on every
+                source file in the current folder.
+
+                Requires a folder of source files and a base code file (see
+                settings below). The language will be inferred from the
+                extension of the base file.
+
+                Prints a complete MOSS command for analyzing all files together.
+                Example: ./moss -l c -b HW02_Base.c Name1_HW02.c Name2_HW02.c ...
+                """
 
 __author__      = "Ruben Acuna"
 __copyright__   = "Copyright 2011-2013, Ruben Acuna"
@@ -10,7 +19,7 @@ import os
 ####################################################
 ##################### SETTINGS #####################
 ####################################################
-base_file = "Base_HW05_Q01.cpp"
+base_file = "HW02_Programming.c"
 
 
 if base_file[-2:] == ".c":
@@ -27,7 +36,8 @@ if base_file:
 
 dir = os.getcwd()
 
-for name in [x for x in os.listdir(dir) if "."+os.path.splitext(base_file)[1] in x and not base_file == x]:
+for name in [x for x in os.listdir(dir) if  not base_file == x and not ".py" in x]:
     output = output + name + " "
 
+print "The correct MOSS command is:"
 print output
