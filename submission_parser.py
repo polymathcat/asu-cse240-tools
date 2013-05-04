@@ -18,6 +18,7 @@ __author__      = "Ruben Acuna"
 __copyright__   = "Copyright 2011-2013, Ruben Acuna"
 
 import sys
+import codecs
 
 ####################################################
 ##################### SETTINGS #####################
@@ -40,8 +41,14 @@ class blackboard_tsv(object):
         self.columns = []
         column_indices = dict()
 
-        file = open(filename, "r")
-        lines = file.readlines()
+        file = codecs.open(filename, encoding='utf-16')
+        unicode_lines = file.readlines()
+        lines = []
+
+        for line in unicode_lines:
+            ascii_line = line.replace(u'\xa0', u' ')
+            ascii_line.encode('ascii','replace')
+            lines += [ascii_line]
 
         for key, i in enumerate(lines[0].split(text_separator)):
             i = i.strip("\"").strip().strip("\"").strip() #whatever man
@@ -298,7 +305,7 @@ def dump_short_answer_questions(bb_short_answers, hw_number, questions_short_ans
 
 def process_homework(hw_number, question_deductions, question_comments, student_information):
     #goal: build inital online spread sheet from inputs as well as gradeable text
-    bb_short_answers = blackboard_tsv("Homework " + str(hw_number) + ".01.download.xls", student_information)
+    bb_short_answers = blackboard_tsv("Homework " + str(hw_number) + ".01%3A Short Answer.download.xls", student_information)
 
     #PREPARE QUESTIONS
     #get short answer questions
