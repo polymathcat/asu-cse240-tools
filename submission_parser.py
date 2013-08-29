@@ -23,8 +23,8 @@ import codecs
 ####################################################
 ##################### SETTINGS #####################
 ####################################################
-hw_number = 2
-section = "f"
+hw_number = 1
+section = "pm"
 
 text_separator = "\t"
 
@@ -47,7 +47,7 @@ class blackboard_tsv(object):
 
         for line in unicode_lines:
             ascii_line = line.replace(u'\xa0', u' ')
-            ascii_line.encode('ascii','replace')
+            ascii_line = ascii_line.encode('ascii', 'replace')
             lines += [ascii_line]
 
         for key, i in enumerate(lines[0].split(text_separator)):
@@ -74,7 +74,7 @@ class blackboard_tsv(object):
 
             for j, sorted_student in enumerate(student_information):
                 if student["Username"] == sorted_student["Username"]:
-                    self._students[j]  = student
+                    self._students[j] = student
                     break
 
         file.close()
@@ -90,7 +90,9 @@ class blackboard_tsv(object):
     def __getitem__(self, key):
         return self._students.__getitem__(key)
 
-class QuestionShortAnswer(object):
+
+
+class ItemAnswer(object):
     def __init__(self, id, prompt, possible_points):
         self._id = id
         self._prompt = prompt
@@ -111,7 +113,7 @@ class QuestionShortAnswer(object):
         return 2 + len(self._comments) + len(self._deductions)
 
     def print_student_row(self, row_index, no_submission):
-        #print "MEOW",
+
         sys.stdout.write("\t")
         sys.stdout.write("=" + self._possible_points)
 
@@ -151,15 +153,25 @@ class QuestionShortAnswer(object):
         sys.stdout.write("\t")
         sys.stdout.write(title + "_comment")
 
-def results_extract_short_answer_questions(sheet, columns):
+def results_extract_questions(sheet, columns):
     questions = []
 
-    #ex: 'Question ID 1', 'Question 1', 'Answer 1', 'Possible Points 1', 'Auto Score 1', 'Manual Score 1'
+    #SA ex: 'Question ID 1', 'Question 1', 'Answer 1', 'Possible Points 1', 'Auto Score 1', 'Manual Score 1'
+    #columns look the same for sa and mc - and i assume for everything else.
     while len(columns) > 0:
 
         id = int(columns[0].split(" ")[-1])
-        prompt = sheet[1]["Question " + str(id)]
-        value = sheet[1]["Possible Points " + str(id)]
+
+        #detect the first student with a submission. need it to get the prompts.
+        index_first_valid = 1
+        for i in xrange(len(sheet._students)):
+            if sheet[i]:
+                index_first_valid = i
+                break
+
+        prompt = sheet[index_first_valid]["Question " + str(id)]
+        value = sheet[index_first_valid]["Possible Points " + str(id)]
+
 
         if columns[0] != "Question ID " + str(id) or \
            columns[1] != "Question " + str(id) or \
@@ -170,7 +182,7 @@ def results_extract_short_answer_questions(sheet, columns):
             print "ERROR: failed to parse short answer."
             exit()
 
-        question = QuestionShortAnswer(id, prompt, value)
+        question = ItemAnswer(id, prompt, value)
         questions.append(question)
 
         columns = columns[6:]
@@ -268,48 +280,75 @@ def print_grading_spreadsheet(questions_short_answer, student_information, submi
         #finish off the row with a newline
         print
 
-def dump_short_answer_questions(bb_short_answers, hw_number, questions_short_answer, student_information):
-    for question in questions_short_answer:
-        answer_column = "Answer " + str(question._id)
+def dump_answers(bb_students_answers, hw_number, questions, student_information):
+    for question in questions:
 
-        filename = "hw" + str(hw_number) +"_"+ section +"_submissions_q" + str(question._id) + ".html"
-        file = open(filename, "w")
+        #check if this question was auto graded.
+        auto_graded = False
+        for i, student_answers in enumerate(bb_students_answers):
+            if student_answers and student_answers["Auto Score " + str(question._id)]:
 
-        file.write("<b><font size=\"6\">")
-        file.write("Question #" + str(question._id) + ":")
-        file.write("</font></b><br>\n")
-        file.write(question._prompt + "<br>\n")
+                auto_graded = True
 
-        for i, student in enumerate(bb_short_answers):
+        #if autograded, just print avaliable scores to text file.
+        if auto_graded:
 
-            #file.write("=======================================\n")
-            file.write("<b><font size=\"5\">")
-            file.write(student_information[i]["Last Name"] + ", " + student_information[i]["First Name"])
+            answer_column = "Auto Score " + str(question._id)
+
+            filename = "hw" + str(hw_number) + "_" + section + "_submissions_q" + str(question._id) + "_autograded.txt"
+            file = open(filename, "w")
+
+            for i, student_answers in enumerate(bb_students_answers):
+
+                if student_answers:
+                    answer = student_answers[answer_column].strip()
+                    file.write(answer)
+
+                file.write("\n")
+
+            file.close()
+        #otherwise, print the actual submission data
+        else:
+            answer_column = "Answer " + str(question._id)
+
+            filename = "hw" + str(hw_number) + "_" + section + "_submissions_q" + str(question._id) + ".html"
+            file = open(filename, "w")
+
+            file.write("<b><font size=\"6\">")
+            file.write("Question #" + str(question._id) + ":")
             file.write("</font></b><br>\n")
+            file.write(question._prompt + "<br>\n")
 
-            if student:
-                answer = student[answer_column].strip()
+            for i, student_answers in enumerate(bb_students_answers):
 
-                if answer == "<Unanswered>":
-                    answer = "Question opened, saved with blank answer, <i>and</i> not submitted." #sometimes doesn't work
+                #file.write("=======================================\n")
+                file.write("<b><font size=\"5\">")
+                file.write(student_information[i]["Last Name"] + ", " + student_information[i]["First Name"])
+                file.write("</font></b><br>\n")
 
-                answer += "<br><br>\n";
-                file.write(answer);
+                if student_answers:
+                    answer = student_answers[answer_column].strip()
 
-            else:
-                file.write("HW not submitted.<br><br>\n")
+                    if answer == "<Unanswered>":
+                        answer = "Question opened, saved with blank answer, <i>and</i> not submitted." #sometimes doesn't work
 
-            file.write("\n")
+                    answer += "<br><br>\n";
+                    file.write(answer);
 
-        file.close()
+                else:
+                    file.write("Did not submit HW.<br><br>\n")
+
+                file.write("\n")
+
+            file.close()
 
 def process_homework(hw_number, question_deductions, question_comments, student_information):
     #goal: build inital online spread sheet from inputs as well as gradeable text
-    bb_short_answers = blackboard_tsv("Homework " + str(hw_number) + ".01%3A Short Answer.download.xls", student_information)
+    bb_answers = blackboard_tsv("Homework " + str(hw_number) + ".01%3A Short Answer.download.xls", student_information)
 
     #PREPARE QUESTIONS
     #get short answer questions
-    questions = results_extract_short_answer_questions(bb_short_answers, bb_short_answers.get_columns()[3:])
+    questions = results_extract_questions(bb_answers, bb_answers.get_columns()[3:])
 
     #merge deductions with parsed short answer questions
     for question_id in question_deductions:
@@ -336,9 +375,9 @@ def process_homework(hw_number, question_deductions, question_comments, student_
         columns_consumed += question.get_columns_needed()
 
     #use at own risk - pending integration with commentgen.py so it doesn't have to manually detect columns.
-    #print_grading_spreadsheet(questions, student_information, bb_short_answers)
+    #print_grading_spreadsheet(questions, student_information, bb_answers)
 
-    dump_short_answer_questions(bb_short_answers, hw_number, questions, student_information)
+    dump_answers(bb_answers, hw_number, questions, student_information)
 
 #class specific
 student_information = load_student_information()
