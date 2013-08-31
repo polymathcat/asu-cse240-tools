@@ -301,8 +301,13 @@ def dump_answers(bb_students_answers, hw_number, questions, student_information)
             for i, student_answers in enumerate(bb_students_answers):
 
                 if student_answers:
-                    answer = student_answers[answer_column].strip()
-                    file.write(answer)
+                    grade = student_answers[answer_column].strip()
+                    possible_points = student_answers["Possible Points " + str(question._id)].strip()
+                    deduction = int(possible_points) - int(grade)
+                    if deduction != 0:
+                        file.write(str(deduction))
+                else:
+                    file.write("5")
 
                 file.write("\n")
 
