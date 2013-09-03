@@ -285,10 +285,14 @@ def dump_answers(bb_students_answers, hw_number, questions, student_information)
 
         #check if this question was auto graded.
         auto_graded = False
+        possible_points = 0
         for i, student_answers in enumerate(bb_students_answers):
-            if student_answers and student_answers["Auto Score " + str(question._id)]:
 
-                auto_graded = True
+            if student_answers:
+                possible_points = student_answers["Possible Points " + str(question._id)].strip()
+
+                if student_answers["Auto Score " + str(question._id)]:
+                    auto_graded = True
 
         #if autograded, just print avaliable scores to text file.
         if auto_graded:
@@ -300,14 +304,15 @@ def dump_answers(bb_students_answers, hw_number, questions, student_information)
 
             for i, student_answers in enumerate(bb_students_answers):
 
+
+
                 if student_answers:
                     grade = student_answers[answer_column].strip()
-                    possible_points = student_answers["Possible Points " + str(question._id)].strip()
                     deduction = int(possible_points) - int(grade)
                     if deduction != 0:
                         file.write(str(deduction))
                 else:
-                    file.write("5")
+                    file.write(str(possible_points))
 
                 file.write("\n")
 
