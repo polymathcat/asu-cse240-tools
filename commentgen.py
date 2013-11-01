@@ -19,12 +19,12 @@ def tag(text, t):
 ####################################################
 ##################### SETTINGS #####################
 ####################################################
-hw = 1
-parts = [1, 2]
-section = "tr"
+hw = 5
+parts = [1]
+section = "am"
 
 
-filename = "CSE240 - 2013 Spring - HW"+str(hw).zfill(2)+" - Sheet1.tsv"
+filename = "CSE240 - 2013 Fall - HW"+str(hw).zfill(2)+" - Sheet1.tsv"
 file = open(filename, "r")
 text = file.readlines()
 text_separator = "\t"
@@ -62,7 +62,7 @@ row_point_value = [x.strip() for x in text[2].split(text_separator)]
 for column_name in dict_column_indices.keys():
     if "_final" in column_name and not column_name in dict_point_values:
         id = int(column_name.split("_")[0][1:])
-        dict_point_values[id] = int(row_point_value[dict_column_indices[column_name]])
+        dict_point_values[id] = float(row_point_value[dict_column_indices[column_name]])
 
 #detect questions associated with different parts
 for part in parts:
@@ -124,7 +124,7 @@ for line in text[3:]:
             colnum_comment = dict_column_indices[prefix+"comment"]
 
             #process final score column
-            feedback += tag("q"+str(id)+": " + line[colnum_final] + "/"+str(dict_point_values[id])+" ", "b")
+            feedback += tag("q"+str(id)+": " + str(float(line[colnum_final])) + "/"+str(float(dict_point_values[id]))+" ", "b")
 
             feedback += "<ul>"
 
