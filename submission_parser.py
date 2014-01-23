@@ -24,7 +24,7 @@ import codecs
 ##################### SETTINGS #####################
 ####################################################
 hw_number = 1
-section = "pm"
+section = "mw"
 
 text_separator = "\t"
 
@@ -304,11 +304,9 @@ def dump_answers(bb_students_answers, hw_number, questions, student_information)
 
             for i, student_answers in enumerate(bb_students_answers):
 
-
-
                 if student_answers:
                     grade = student_answers[answer_column].strip()
-                    deduction = int(possible_points) - int(grade)
+                    deduction = int(possible_points) - float(grade)
                     if deduction != 0:
                         file.write(str(deduction))
                 else:
