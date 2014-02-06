@@ -19,12 +19,12 @@ def tag(text, t):
 ####################################################
 ##################### SETTINGS #####################
 ####################################################
-hw = 5
-parts = [1]
-section = "am"
+hw = 1
+parts = [1,2]
+section = "mw"
 
 
-filename = "CSE240 - 2013 Fall - HW"+str(hw).zfill(2)+" - Sheet1.tsv"
+filename = "CSE240 - 2014 Spring - HW"+str(hw).zfill(2)+" - Sheet1.tsv"
 file = open(filename, "r")
 text = file.readlines()
 text_separator = "\t"
