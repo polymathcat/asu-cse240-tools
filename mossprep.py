@@ -31,7 +31,7 @@ elif base_file[-4:] == ".cpp":
 elif base_file[-4:] == ".rkt":
     type = "scheme"
 
-output = "./moss -l "+type
+output = "./mossnet -l "+type
 
 if base_file:
     output += " -b "+base_file+" "
@@ -43,7 +43,11 @@ exclude = ["mossnet", "mossprep.py", base_file]
 for name in [x for x in os.listdir(dir) if not x in exclude]:
     os.rename(name, name.replace(" ", "_"))
     name = name.replace(" ", "_")
-
+    os.rename(name, name.replace("(", "_"))
+    name = name.replace("(", "_")
+    os.rename(name, name.replace(")", "_"))
+    name = name.replace(")", "_")
+    
     output = output + name + " "
 
 print "The correct MOSS command is:"
