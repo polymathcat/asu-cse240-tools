@@ -12,21 +12,23 @@
                 """
 
 __author__      = "Ruben Acuna"
-__copyright__   = "Copyright 2011-2013, Ruben Acuna"
+__copyright__   = "Copyright 2011-2014, Ruben Acuna"
 
 import os
 
 ####################################################
 ##################### SETTINGS #####################
 ####################################################
-base_file = "HW02_Programming.c"
+base_file = "HW02_02_Base.c"
 
-
+####################################################
+####################### MAIN #######################
+####################################################
 if base_file[-2:] == ".c":
     type = "c"
-elif base_file[-2:] == ".cpp":
+elif base_file[-4:] == ".cpp":
     type = "cc"
-elif base_file[-2:] == ".rkt":
+elif base_file[-4:] == ".rkt":
     type = "scheme"
 
 output = "./moss -l "+type
@@ -36,7 +38,12 @@ if base_file:
 
 dir = os.getcwd()
 
-for name in [x for x in os.listdir(dir) if  not base_file == x and not ".py" in x]:
+exclude = ["mossnet", "mossprep.py", base_file]
+
+for name in [x for x in os.listdir(dir) if not x in exclude]:
+    os.rename(name, name.replace(" ", "_"))
+    name = name.replace(" ", "_")
+
     output = output + name + " "
 
 print "The correct MOSS command is:"
