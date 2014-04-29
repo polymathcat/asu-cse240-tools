@@ -19,9 +19,9 @@ def tag(text, t):
 ####################################################
 ##################### SETTINGS #####################
 ####################################################
-hw = 1
-parts = [1,2]
-section = "mw"
+hw = 7
+parts = [1]
+section = "tr"
 
 
 filename = "CSE240 - 2014 Spring - HW"+str(hw).zfill(2)+" - Sheet1.tsv"
@@ -60,9 +60,24 @@ for column_name in dict_column_indices.keys():
 #store point values from third row
 row_point_value = [x.strip() for x in text[2].split(text_separator)]
 for column_name in dict_column_indices.keys():
-    if "_final" in column_name and not column_name in dict_point_values:
-        id = int(column_name.split("_")[0][1:])
-        dict_point_values[id] = float(row_point_value[dict_column_indices[column_name]])
+    if "_final" in column_name:
+        if not column_name in dict_point_values:
+
+            #get ID of active column
+            try:
+                question_id = int(column_name.split("_")[0][1:])
+            except ValueError:
+                raise Exception("Could not parse question number for " + column_name + ".")
+
+            #get value of active column
+            try:
+                column_value = float(row_point_value[dict_column_indices[column_name]])
+            except ValueError:
+                raise Exception("Could not parse point worth for " + column_name + ".")
+
+            dict_point_values[question_id] = column_value
+        else:
+            raise Exception("Attempted to bind two point values for same column name.")
 
 #detect questions associated with different parts
 for part in parts:
@@ -76,7 +91,7 @@ for part in parts:
     for column_name in dict_column_indices.keys():
         if "_final" in column_name:
 
-            if x1 <  dict_column_indices[column_name] < x2:
+            if x1 < dict_column_indices[column_name] < x2:
 
                 id = int(column_name.split("_")[0][1:])
 
@@ -104,7 +119,9 @@ for line in text[3:]:
     if line == "" or line[0][0] == "#":
         continue
 
-    user_name = line[dict_column_indices["Last Name"]] + ", " + line[dict_column_indices["First Name"]]
+    last_name = line[dict_column_indices["Last Name"]]
+    first_name = line[dict_column_indices["First Name"]]
+    user_name = last_name + ", " + first_name
     feedback = ""
 
     for i, part in enumerate(parts):
@@ -118,13 +135,18 @@ for line in text[3:]:
 
     #process each question
     for part in parts:
-        for id in section_questions[part]:
-            prefix = "q"+str(id)+"_"
-            colnum_final = dict_column_indices[prefix+"final"]
-            colnum_comment = dict_column_indices[prefix+"comment"]
+        for question_id in section_questions[part]:
+            prefix = "q"+str(question_id)+"_"
+            column_final = dict_column_indices[prefix+"final"]
+            column_comment = dict_column_indices[prefix+"comment"]
 
-            #process final score column
-            feedback += tag("q"+str(id)+": " + str(float(line[colnum_final])) + "/"+str(float(dict_point_values[id]))+" ", "b")
+            #process final graded_score column
+            try:
+                graded_score = str(float(line[column_final]))
+            except ValueError:
+                raise Exception("Could not parse question score for " + last_name + "'s Q" + str(question_id) + ".")
+
+            feedback += tag("q"+str(question_id)+": " + graded_score + "/"+str(float(dict_point_values[question_id])) + " ", "b")
 
             feedback += "<ul>"
 
@@ -153,19 +175,19 @@ for line in text[3:]:
                         feedback += tag("Suggestion: " + dict_comments[column_name], "li")
 
             #check if this is a programming problem
-            if "q"+str(id)+"_compiles" in dict_column_indices.keys():
-                colnum_compiles = dict_column_indices["q"+str(id)+"_compiles"]
-                colnum_compiles_comment = dict_column_indices["q"+str(id)+"_compiles_comment"]
+            if "q"+str(question_id)+"_compiles" in dict_column_indices.keys():
+                colnum_compiles = dict_column_indices["q"+str(question_id)+"_compiles"]
+                colnum_compiles_comment = dict_column_indices["q"+str(question_id)+"_compiles_comment"]
 
                 if line[colnum_compiles] != str(1):
-                    feedback += tag(dict_comments["q"+str(id)+"_compiles_comment"]+" -"+str((1-float(line[colnum_compiles]))*100)+"% from base grade. ", "li")
+                    feedback += tag(dict_comments["q"+str(question_id)+"_compiles_comment"]+" -"+str((1-float(line[colnum_compiles]))*100)+"% from base grade. ", "li")
 
                 if line[colnum_compiles_comment] != "":
                     feedback += tag("Compiler/Parser explanation: "+ line[colnum_compiles_comment] + " ", "li")
 
             #process general comment column
-            if line[colnum_comment] != "":
-                feedback += tag("Question remark: "+ line[colnum_comment] + " ", "li")
+            if line[column_comment] != "":
+                feedback += tag("Question remark: "+ line[column_comment] + " ", "li")
 
             feedback += "</ul>"
 
