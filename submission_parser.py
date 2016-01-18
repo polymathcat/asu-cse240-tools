@@ -24,7 +24,7 @@ import codecs
 ##################### SETTINGS #####################
 ####################################################
 hw_number = 1
-section = "mw"
+section = "mtwrf"
 
 text_separator = "\t"
 
@@ -352,7 +352,7 @@ def dump_answers(bb_students_answers, hw_number, questions, student_information)
 
 def process_homework(hw_number, question_deductions, question_comments, student_information):
     #goal: build inital online spread sheet from inputs as well as gradeable text
-    bb_answers = blackboard_tsv("Homework " + str(hw_number) + ".01%3A Short Answer.download.xls", student_information)
+    bb_answers = blackboard_tsv("Assignment " + str(hw_number) + ".01%3A Short Answer.download.xls", student_information)
 
     #PREPARE QUESTIONS
     #get short answer questions
