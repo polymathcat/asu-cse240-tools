@@ -19,12 +19,12 @@ def tag(text, t):
 ####################################################
 ##################### SETTINGS #####################
 ####################################################
-hw = 7
+hw = 1
 parts = [1]
-section = "tr"
+section = "mtwrf"
 
 
-filename = "CSE240 - 2014 Spring - HW"+str(hw).zfill(2)+" - Sheet1.tsv"
+filename = "CST200 - 2016 Spring A - A"+str(hw).zfill(1)+" - Sheet1.tsv"  #zfill=2
 file = open(filename, "r")
 text = file.readlines()
 text_separator = "\t"
@@ -180,7 +180,7 @@ for line in text[3:]:
                 colnum_compiles_comment = dict_column_indices["q"+str(question_id)+"_compiles_comment"]
 
                 if line[colnum_compiles] != str(1):
-                    feedback += tag(dict_comments["q"+str(question_id)+"_compiles_comment"]+" -"+str((1-float(line[colnum_compiles]))*100)+"% from base grade. ", "li")
+                    feedback += tag(dict_comments["q"+str(question_id)+"_compiles_comment"]+" -"+str((1-float(line[colnum_compiles]))*100)+"% from base grade grade because submission does not compile/parse. ", "li")
 
                 if line[colnum_compiles_comment] != "":
                     feedback += tag("Compiler/Parser explanation: "+ line[colnum_compiles_comment] + " ", "li")
