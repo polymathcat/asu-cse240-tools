@@ -15,7 +15,7 @@
                          """
 
 __author__      = "Ruben Acuna"
-__copyright__   = "Copyright 2011-2013, Ruben Acuna"
+__copyright__   = "Copyright 2011-2016, Ruben Acuna"
 
 import sys
 import codecs
@@ -23,7 +23,7 @@ import codecs
 ####################################################
 ##################### SETTINGS #####################
 ####################################################
-hw_number = 1
+hw_number = 10
 section = "mtwrf"
 
 text_separator = "\t"
@@ -352,7 +352,12 @@ def dump_answers(bb_students_answers, hw_number, questions, student_information)
 
 def process_homework(hw_number, question_deductions, question_comments, student_information):
     #goal: build inital online spread sheet from inputs as well as gradeable text
-    bb_answers = blackboard_tsv("Assignment " + str(hw_number) + ".01%3A Short Answer.download.xls", student_information)
+
+    if hw_number < 10:
+        unit_name = "Unit 0" + str(hw_number)
+    else:
+        unit_name = "Unit " + str(hw_number)
+    bb_answers = blackboard_tsv(unit_name + ".01%3A Short Answer.download.xls", student_information)
 
     #PREPARE QUESTIONS
     #get short answer questions
